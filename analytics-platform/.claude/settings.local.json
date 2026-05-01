@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(node -e ':*)",
+      "Bash(node -e ' *)",
+      "Bash(curl *)",
+      "Bash(node -e \"const a = require\\('@anthropic-ai/sdk'\\); console.log\\(Object.keys\\(a\\)\\)\")",
+      "Bash(ls \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/\"*.mjs)",
+      "Bash(cp -r \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/nextjs-admin-dashboard-main/src/components\" \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/src/\")",
+      "Bash(cp -r \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/nextjs-admin-dashboard-main/src/css\" \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/src/\")",
+      "Bash(cp -r \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/nextjs-admin-dashboard-main/src/assets\" \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/src/\")",
+      "Bash(cp -r \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/nextjs-admin-dashboard-main/src/fonts\" \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/src/\")",
+      "Bash(cp -r \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/nextjs-admin-dashboard-main/src/hooks\" \"C:/Users/Pc/Desktop/New Proyect/analytics-platform/src/\")",
+      "Bash(node screenshot.mjs http://localhost:3002 home)",
+      "Bash(python3 -c \"import sys,json,re; s=sys.stdin.read\\(\\); m=re.search\\(r'\\\\\"message\\\\\":\\\\\"\\([^\\\\\"]+\\)\\\\\"', s\\); print\\(m.group\\(1\\) if m else s[:500]\\)\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(PGPASSWORD=1234 psql *)"
+    ]
+  }
+}

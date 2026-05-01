@@ -1,0 +1,41 @@
+# ============================================================
+# CRONTAB — Analytics Platform
+# Instalar con: crontab scripts/crontab.txt
+# O abrir con:  crontab -e  y pegar estas líneas
+#
+# Ajustar /ruta/al/proyecto con la ruta real en tu servidor
+# ============================================================
+
+# Variables de entorno
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+PROJECT=/home/usuario/analytics-platform
+
+# ── Cada hora: agregar stats del día anterior ──────────────
+0 * * * *   cd $PROJECT && bash scripts/cron.sh 04-aggregate-stats
+
+# ── Diario 02:00: colección GSC (performance + keywords + sitemaps)
+0 2 * * *   cd $PROJECT && bash scripts/cron.sh 01-collect-gsc
+
+# ── Diario 03:00: inspección de rich results y URLs ────────
+0 3 * * *   cd $PROJECT && bash scripts/cron.sh 02-inspect-rich-results
+
+# ── Cada 6hs: captura y parseo de emails de Google ─────────
+0 */6 * * * cd $PROJECT && bash scripts/cron.sh 03-parse-gsc-emails
+
+# ── Diario 05:00: recomendaciones IA (+ reporte los lunes) ─
+0 5 * * *   cd $PROJECT && bash scripts/cron.sh 05-generate-ai-recommendations
+
+# ── Mensual: actualizar GeoLite2 ──────────────────────────
+0 4 1 * *   cd $PROJECT && bash scripts/cron.sh 06-update-geoip
+
+# ============================================================
+# RESUMEN DE HORARIOS
+# ─────────────────────────────────────────────────────────────
+# 00:00 → cada hora: aggregate-stats
+# 02:00 → collect-gsc
+# 03:00 → inspect-rich-results
+# 00/06/12/18 → parse-gsc-emails
+# 05:00 → generate-ai-recommendations
+# 01 de cada mes 04:00 → update-geoip
+# ============================================================
