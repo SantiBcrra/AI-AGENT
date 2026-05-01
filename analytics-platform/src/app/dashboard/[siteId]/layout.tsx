@@ -45,8 +45,7 @@ export default async function SiteLayout({
         emailCount={parseInt(health?.unread_gsc_emails ?? '0', 10)}
         securityCount={parseInt(health?.security_issues ?? '0', 10)}
       />
-      {/* Contenido — con offset del sidebar */}
-      <main className="flex-1 ml-60 min-h-screen flex flex-col">
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col">
         {children}
       </main>
     </div>

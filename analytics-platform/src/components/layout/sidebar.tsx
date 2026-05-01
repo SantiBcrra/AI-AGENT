@@ -3,12 +3,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
-/* ── SVG icon helper ──────────────────────────────────── */
-function Icon({ d, size = 16 }: { d: string; size?: number }) {
+/* ── SVG icon helper (size-6 = 24px, igual que NextAdmin sidebar) ── */
+function Icon({ d, className }: { d: string; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}
+      strokeLinecap="round" strokeLinejoin="round"
+      className={cn('size-6 shrink-0', className)} aria-hidden="true">
       <path d={d} />
     </svg>
   )
@@ -39,23 +41,36 @@ function NavLink({ item, siteId }: { item: NavItem; siteId: string }) {
   const pathname = usePathname()
   const href     = item.href.replace('[siteId]', siteId)
 
-  // Exact match para overview, startsWith para el resto
   const isOverview = item.href === '/dashboard/[siteId]'
   const active = isOverview ? pathname === href : pathname.startsWith(href)
 
   const badgeColors = {
-    red:    'bg-nex-coral text-white',
-    purple: 'bg-nex-purple text-white',
-    blue:   'bg-nex-blue text-white',
+    red:    'bg-red-light text-white',
+    purple: 'bg-primary text-white',
+    blue:   'bg-blue-light text-white',
   }
 
   return (
-    <Link href={href} className={`nav-link ${active ? 'active' : ''}`}>
+    <Link
+      href={href}
+      className={cn(
+        'relative flex w-full items-center gap-3 rounded-lg px-3.5 py-3 font-medium transition-all duration-200',
+        active
+          ? 'bg-[rgba(87,80,241,0.07)] text-primary hover:bg-[rgba(87,80,241,0.07)] dark:bg-[#FFFFFF1A] dark:text-white'
+          : 'text-dark-4 hover:bg-gray-100 hover:text-dark hover:dark:bg-[#FFFFFF1A] hover:dark:text-white dark:text-dark-6',
+      )}
+    >
       <Icon d={ICONS[item.icon]} />
       <span className="flex-1 truncate">{item.label}</span>
       {item.badge !== undefined && item.badge > 0 && (
-        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center
-          ${active ? 'bg-white/25 text-white' : badgeColors[item.badgeTone ?? 'purple']}`}>
+        <span
+          className={cn(
+            'min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-xs font-bold',
+            active
+              ? 'bg-primary/15 text-primary dark:bg-white/20 dark:text-white'
+              : badgeColors[item.badgeTone ?? 'purple'],
+          )}
+        >
           {item.badge > 99 ? '99+' : item.badge}
         </span>
       )}
@@ -90,87 +105,109 @@ export function Sidebar({ siteId, siteName, siteDomain, sites, alertCount, email
   ]
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-60 flex flex-col z-40
-      bg-white dark:bg-dark-surface border-r border-surface-border dark:border-dark-border">
-
-      {/* ── Logo / Brand ──────────────────────────────── */}
-      <div className="flex items-center gap-2.5 px-5 py-4 border-b border-surface-border dark:border-dark-border shrink-0">
-        <div className="relative w-8 h-8 shrink-0">
-          <Image src="/logo.png" alt="Nexphaz" fill className="object-contain" />
-        </div>
-        <div className="min-w-0">
-          <p className="font-black text-sm tracking-tight" style={{ color: '#6c1cfc' }}>Nexphaz</p>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-wider uppercase">Analytics</p>
-        </div>
-      </div>
-
-      {/* ── Site selector ─────────────────────────────── */}
-      <div className="px-3 py-3 border-b border-surface-border dark:border-dark-border shrink-0">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-2 mb-2">
-          Sitio activo
-        </p>
-        <details className="group">
-          <summary className="flex items-center gap-2.5 px-2 py-2 rounded-xl cursor-pointer
-            hover:bg-nex-ghost dark:hover:bg-dark-muted select-none list-none
-            [&::-webkit-details-marker]:hidden transition-colors">
-            {/* Health indicator */}
-            <div className="w-1.5 h-8 rounded-full shrink-0 overflow-hidden">
-              <div className="w-full h-full" style={{ background: 'linear-gradient(180deg,#6c1cfc,#b28afd)' }} />
+    <aside
+      className="sticky top-0 z-40 flex h-screen w-full max-w-[290px] shrink-0 flex-col overflow-hidden
+        border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-dark"
+      aria-label="Navegación del sitio"
+    >
+      <div className="flex h-full flex-col py-10 pl-[25px] pr-[7px]">
+        {/* ── Logo / Brand (misma jerarquía que NextAdmin sidebar) ── */}
+        <div className="relative pr-4.5">
+          <Link href="/dashboard" className="flex items-center gap-2.5 px-0 py-2.5 min-[850px]:py-0">
+            <div className="relative h-8 w-8 shrink-0">
+              <Image src="/logo.png" alt="Nexphaz" fill className="object-contain" sizes="32px" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-800 dark:text-white truncate leading-tight">{siteName}</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 truncate leading-tight">{siteDomain}</p>
+            <div className="min-w-0">
+              <p className="text-sm font-bold tracking-tight text-dark dark:text-white">Nexphaz</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-dark-4 dark:text-dark-6">
+                Analytics
+              </p>
             </div>
-            <Icon d={ICONS.chevronDown} size={14} />
-          </summary>
+          </Link>
+        </div>
 
-          {/* Dropdown de sitios */}
-          <div className="mt-1.5 space-y-0.5 pl-2">
-            {sites.map(s => {
-              const dotClass = s.health_score >= 80 ? 'health-dot-ok' : s.health_score >= 50 ? 'health-dot-warn' : 'health-dot-error'
-              return (
-                <Link key={s.id} href={`/dashboard/${s.id}`}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors
-                    ${String(s.id) === siteId
-                      ? 'bg-nex-ghost dark:bg-dark-muted font-semibold text-nex-purple dark:text-nex-lavender'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-nex-ghost dark:hover:bg-dark-muted'
-                    }`}>
-                  <span className={dotClass} />
-                  <span className="truncate flex-1">{s.domain}</span>
-                  <span className="text-[10px] tabular-nums text-slate-400">{s.health_score}</span>
-                </Link>
-              )
-            })}
-            <Link href="/dashboard"
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs
-                text-slate-400 hover:text-nex-purple dark:hover:text-nex-lavender transition-colors mt-1">
-              <Icon d={ICONS.sites} size={12} />
-              Ver todos los sitios
-            </Link>
+        {/* ── Site selector ─────────────────────────────── */}
+        <div className="mt-6 min-[850px]:mt-10">
+          <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">Sitio activo</h2>
+          <details className="group">
+            <summary
+              className="flex cursor-pointer list-none select-none items-center gap-2.5 rounded-lg px-2 py-2
+                font-medium text-dark-4 transition-all duration-200 hover:bg-gray-100 hover:text-dark
+                dark:text-dark-6 hover:dark:bg-[#FFFFFF1A] hover:dark:text-white
+                [&::-webkit-details-marker]:hidden"
+            >
+              <div className="h-8 w-1.5 shrink-0 overflow-hidden rounded-full bg-primary/80" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold leading-tight text-dark dark:text-white">{siteName}</p>
+                <p className="truncate text-xs leading-tight text-dark-4 dark:text-dark-6">{siteDomain}</p>
+              </div>
+              <Icon d={ICONS.chevronDown} className="!size-3.5 shrink-0 opacity-70" />
+            </summary>
+
+            <div className="custom-scrollbar mt-2 max-h-48 space-y-0.5 overflow-y-auto pr-2">
+              {sites.map(s => {
+                const score = typeof s.health_score === 'string' ? parseInt(s.health_score, 10) : s.health_score
+                const dotClass =
+                  score >= 80 ? 'health-dot-ok' : score >= 50 ? 'health-dot-warn' : 'health-dot-error'
+                return (
+                  <Link
+                    key={s.id}
+                    href={`/dashboard/${s.id}`}
+                    className={cn(
+                      'flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium transition-all duration-200',
+                      String(s.id) === siteId
+                        ? 'bg-[rgba(87,80,241,0.07)] text-primary dark:bg-[#FFFFFF1A] dark:text-white'
+                        : 'text-dark-4 hover:bg-gray-100 hover:text-dark dark:text-dark-6 hover:dark:bg-[#FFFFFF1A] hover:dark:text-white',
+                    )}
+                  >
+                    <span className={dotClass} />
+                    <span className="flex-1 truncate">{s.domain}</span>
+                    <span className="tabular-nums text-[10px] text-dark-4 dark:text-dark-6">{score}</span>
+                  </Link>
+                )
+              })}
+              <Link
+                href="/dashboard"
+                className="mt-1 flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-dark-4
+                  transition-all duration-200 hover:bg-gray-100 hover:text-dark dark:text-dark-6
+                  hover:dark:bg-[#FFFFFF1A] hover:dark:text-white"
+              >
+                <Icon d={ICONS.sites} className="!size-4" />
+                Ver todos los sitios
+              </Link>
+            </div>
+          </details>
+        </div>
+
+        {/* ── Navigation ────────────────────────────────── */}
+        <nav className="custom-scrollbar mt-6 flex-1 overflow-y-auto pr-3 min-[850px]:mt-8">
+          <div className="mb-6">
+            <h2 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">Monitoreo</h2>
+            <ul className="space-y-2">
+              {navItems.map(item => (
+                <li key={item.href}>
+                  <NavLink item={item} siteId={siteId} />
+                </li>
+              ))}
+            </ul>
           </div>
-        </details>
-      </div>
+        </nav>
 
-      {/* ── Navigation ────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 px-3 py-2">
-          Monitoreo
-        </p>
-        {navItems.map(item => (
-          <NavLink key={item.href} item={item} siteId={siteId} />
-        ))}
-      </nav>
-
-      {/* ── Footer ────────────────────────────────────── */}
-      <div className="px-3 py-3 border-t border-surface-border dark:border-dark-border shrink-0">
-        <Link href="/dashboard" className="nav-link text-xs">
-          <Icon d={ICONS.sites} />
-          Todos los sitios
-        </Link>
-        {/* Versión */}
-        <p className="text-[10px] text-slate-300 dark:text-slate-600 text-center mt-2">
-          Nexphaz Analytics v1.0
-        </p>
+        {/* ── Footer ────────────────────────────────────── */}
+        <div className="mt-auto border-t border-gray-200 pt-4 dark:border-gray-800">
+          <Link
+            href="/dashboard"
+            className={cn(
+              'relative flex w-full items-center gap-3 rounded-lg px-3.5 py-3 text-xs font-medium transition-all duration-200',
+              'text-dark-4 hover:bg-gray-100 hover:text-dark dark:text-dark-6',
+              'hover:dark:bg-[#FFFFFF1A] hover:dark:text-white',
+            )}
+          >
+            <Icon d={ICONS.sites} />
+            Todos los sitios
+          </Link>
+          <p className="mt-3 text-center text-[10px] text-dark-4 dark:text-dark-6">Nexphaz Analytics v1.0</p>
+        </div>
       </div>
     </aside>
   )
