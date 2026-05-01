@@ -2,6 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { query } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 async function getSites() {
   return query<{
     site_id:           number
