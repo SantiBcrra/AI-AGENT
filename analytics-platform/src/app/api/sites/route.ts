@@ -78,10 +78,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid domain format' }, { status: 400 })
   }
 
-  const clientId = body.clientId ?? 1
+  const requestedClientId = body.clientId ?? null
   const trackingId = generateTrackingId()
 
   try {
+    let clientId: number
+
+    if (requestedClientId) {
+      const existingClient = await queryOne<{ id: number }>(
+        `SELECT id FROM clients WHERE id = $1 LIMIT 1`,
+        [requestedClientId]
+      )
+      if (!existingClient) {
+        return NextResponse.json({ error: 'El cliente seleccionado no existe' }, { status: 400 })
+      }
+      clientId = existingClient.id
+    } else {
+      const fallbackClient = await queryOne<{ id: number }>(
+        `SELECT id FROM clients ORDER BY id ASC LIMIT 1`
+      )
+
+      if (fallbackClient) {
+        clientId = fallbackClient.id
+      } else {
+        // Seed mínimo para evitar 500 en proyectos recién desplegados.
+        const createdClient = await queryOne<{ id: number }>(`
+          INSERT INTO clients (name, email, company, plan)
+          VALUES ('Default Client', 'default-client@nexphaz.local', 'Nexphaz', 'basic')
+          RETURNING id
+        `)
+
+        if (!createdClient) {
+          throw new Error('No se pudo crear cliente por defecto')
+        }
+        clientId = createdClient.id
+      }
+    }
+
     const site = await queryOne<{ id: number; tracking_id: string; domain: string }>(`
       INSERT INTO sites (client_id, name, domain, tracking_id)
       VALUES ($1, $2, $3, $4)
